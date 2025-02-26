@@ -31,6 +31,19 @@ fn build_scores_table(results: &str) -> HashMap<&str, TeamScores> {
         // Keep in mind that goals scored by team 1 will be the number of goals
         // conceded by team 2. Similarly, goals scored by team 2 will be the
         // number of goals conceded by team 1.
+        for team_score in [
+            (team_1_name, team_1_score, team_2_score), 
+            (team_2_name, team_2_score, team_1_score)] {
+            if let Some(team) = scores.get_mut(&team_score.0) {
+                team.goals_scored += team_score.1;
+                team.goals_conceded += team_score.2; 
+            } else {
+                scores.insert(
+                    team_score.0, 
+                    TeamScores { goals_scored: team_score.1, goals_conceded: team_score.2 }
+                );
+            }
+        }
     }
 
     scores

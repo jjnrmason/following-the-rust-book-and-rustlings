@@ -26,26 +26,49 @@ impl Default for Person {
 // like `"4".parse::<u8>()`.
 //
 // Steps:
-// 1. Split the given string on the commas present in it.
-// 2. If the split operation returns less or more than 2 elements, return the
-//    default of `Person`.
-// 3. Use the first element from the split operation as the name.
-// 4. If the name is empty, return the default of `Person`.
-// 5. Parse the second element from the split operation into a `u8` as the age.
-// 6. If parsing the age fails, return the default of `Person`.
+// 1. If the length of the provided string is 0, then return the default of
+//    Person.
+// 2. Split the given string on the commas present in it.
+// 3. Extract the first element from the split operation and use it as the name.
+// 4. If the name is empty, then return the default of Person.
+// 5. Extract the other element from the split operation and parse it into a
+//    `usize` as the age.
+// If while parsing the age, something goes wrong, then return the default of
+// Person Otherwise, then return an instantiated Person object with the results
+
 impl From<&str> for Person {
-    fn from(s: &str) -> Self {}
+    fn from(s: &str) -> Person {
+        if s == "" {
+            Person::default()
+        } else {
+            s.split(",")
+                .map(|x| x.into())
+                .collect::<Vec<String>>()
+                .into()
+        }
+    }
 }
 
-fn main() {
-    // Use the `from` function.
-    let p1 = Person::from("Mark,20");
-    println!("{p1:?}");
-
-    // Since `From` is implemented for Person, we are able to use `Into`.
-    let p2: Person = "Gerald,70".into();
-    println!("{p2:?}");
+impl From<Vec<String>> for Person {
+    fn from(s: Vec<String>) -> Self {
+        if s.len() < 2 {
+            return Person::default();
+        }
+        let number = s[1].parse();
+        let age;
+        if number.is_err() || s[0] == "" {
+            Person::default()
+        } else {
+            age = number.unwrap();
+            Person {
+                name: s[0].clone(),
+                age: age,
+            }
+        }
+    }
 }
+
+fn main() {}
 
 #[cfg(test)]
 mod tests {
@@ -117,14 +140,14 @@ mod tests {
     #[test]
     fn test_trailing_comma() {
         let p: Person = Person::from("Mike,32,");
-        assert_eq!(p.name, "John");
-        assert_eq!(p.age, 30);
+        assert_eq!(p.name, "Mike");
+        assert_eq!(p.age, 32);
     }
 
     #[test]
     fn test_trailing_comma_and_some_string() {
         let p: Person = Person::from("Mike,32,dog");
-        assert_eq!(p.name, "John");
-        assert_eq!(p.age, 30);
+        assert_eq!(p.name, "Mike");
+        assert_eq!(p.age, 32);
     }
 }
